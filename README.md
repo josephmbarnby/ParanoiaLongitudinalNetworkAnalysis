@@ -2,4 +2,4 @@
 Data and analysis for "The Centrality of Threat: Temporal Network Dynamics of Delusions Over 20 Years"
 
 
-!Graphical Abstract (GraphicalAbstractNetworkParanoia.png)
+![Graphical Abstract](GraphicalAbstractNetworkParanoia.png)
