@@ -202,56 +202,64 @@ rownames(design_mat) <- substr(design_mat[,1],7,nchar(design_mat[,1])-2)
 
 ## Generate Network ---------------------------------------------------------------
 
-delus_only_data <- read.csv('Data/Delusions_Imputed_Data.csv') %>% dplyr::select(-X)
+#delus_only_data <- read.csv('Data/Delusions_Imputed_Data.csv') %>% dplyr::select(-X)
 
-model <- panelgvar(
-  data = delus_only_data, # data
-  vars = design_mat, # The design matrix, with a row indicating a variable and a column a wave of measurements. Note that NA indicates missing variables
-  estimator = 'ULS',
-  storedata = T
-)
+#model <- panelgvar(
+#  data = delus_only_data, # data
+#  vars = design_mat, # The design matrix, with a row indicating a variable and a column a wave of measurements. Note that NA indicates missing variables
+#  estimator = 'ULS',
+#  storedata = T
+#)
 
 #Set model search parms
-alpha  <- 0.01
-adjust <- "none"
+#alpha  <- 0.01
+#adjust <- "none"
 
 #Run models
-delus_model_sat    <- model %>% runmodel()
-delus_model_spa    <- delus_model_sat %>% prune(alpha = alpha, adjust = adjust)
+#delus_model_sat    <- model %>% runmodel()
+#delus_model_spa    <- delus_model_sat %>% prune(alpha = alpha, adjust = adjust)
 
-compare(
-  saturate = delus_model_sat,
-  sparse   = delus_model_spa
-)
+#compare(
+#  saturate = delus_model_sat,
+#  sparse   = delus_model_spa
+#)
 
-winning_delus <- delus_model_sat
+#winning_delus <- delus_model_sat
 
 #Check fit
-winning_delus %>% fit
+#winning_delus %>% fit
+#
+#check signif
+#winning_delus@parameters %>% filter(matrix == 'beta', p < 0.05)
+#winning_delus@parameters %>% filter(matrix == 'omega_zeta_within', p < 0.05)
+#winning_delus@parameters %>% filter(matrix == 'omega_zeta_between', p < 0.05)
 
 #Generate data from network
-generate_data <- winning_delus %>% generate
+#generate_data <- winning_delus %>% generate
 
 ## Recovery ----------------------------------------------------------------
-colnames(generate_data) <- colnames(delus_only_data)
-model_rec <- panelgvar(
-  data = generate_data, # data
-  vars = design_mat, # The design matrix, with a row indicating a variable and a column a wave of measurements.
-  estimator = 'ULS'
-)
+#colnames(generate_data) <- colnames(delus_only_data)
+#model_rec <- panelgvar(
+#  data = generate_data, # data
+#  vars = design_mat, # The design matrix, with a row indicating a variable and a column a wave of measurements.
+#  estimator = 'ULS'
+#)
 
-delus_model_sat_rec <- model_rec %>% runmodel()
-delus_model_sat_rec %>% fit
+#delus_model_sat_rec <- model_rec %>% runmodel()
+#delus_model_sat_rec %>% fit
 
 # Extract networks:
-delus_temporal        <- getmatrix(winning_delus, "beta")
-delus_contemporaneous <- getmatrix(winning_delus, "omega_zeta_within")
-delus_between         <- getmatrix(winning_delus, "omega_zeta_between")
+#delus_temporal        <- getmatrix(winning_delus, "beta")
+#delus_contemporaneous <- getmatrix(winning_delus, "omega_zeta_within")
+#delus_between         <- getmatrix(winning_delus, "omega_zeta_between")
 
-#check signif
-winning_delus@parameters %>% filter(matrix == 'beta', p < 0.05)
-winning_delus@parameters %>% filter(matrix == 'omega_zeta_within', p < 0.05)
-winning_delus@parameters %>% filter(matrix == 'omega_zeta_between', p < 0.05)
+#delus_covariances <- list(temp = delus_temporal, contemp = delus_contemporaneous, between = delus_between)
+
+delus_covariances <- readRDS('data/delus_covariances.RData')
+
+delus_temporal        <- delus_covariances[[1]]
+delus_contemporaneous <- delus_covariances[[2]]
+delus_between         <- delus_covariances[[3]]
 
 labels     <- rownames(design_mat)
 
@@ -588,37 +596,45 @@ design_matS <- matrix(social_net_var[-1:-15],nrow=n_vs,ncol=n_ts, byrow = T) #de
 
 ## Generate Network ---------------------------------------------------------------
 
-Social_Data <- read.csv('Data/Social_Imputed_Data.csv') %>% dplyr::select(-X)
+#Social_Data <- read.csv('Data/Social_Imputed_Data.csv') %>% dplyr::select(-X)
+#
+#alphas  <- 0.01
+#adjusts <- "none"
+#
+#soc_model <- panelgvar(
+#  data = Social_Data, # data
+#  vars = design_matS, # The design matrix, with a row indicating a variable and a column a wave of measurements. Note that NA indicates missing variables
+#  estimator = 'ULS',
+#  storedata = T
+#  )
+#
+#social_model_sat <- soc_model %>% runmodel()
+#social_model_spa <- social_model_sat %>% prune(alpha = alphas)
+#
+#compare(
+#  saturate = social_model_sat,
+#  sparse   = social_model_spa
+#)
+#
+#soc_model_winner <- social_model_sat
+#soc_model_winner %>% fit
+#soc_model_winner %>% parameters
+#soc_model_winner@parameters <- soc_model_winner@parameters %>%
+#  mutate(est = ifelse(matrix == 'omega_zeta_within' & p < 0.05, est, 0),
+#         est = ifelse(matrix == 'omega_zeta_between' & p < 0.05, est, 0))
+#
+## Extract networks:
+#social_temporal        <- getmatrix(soc_model_winner, "beta")
+#social_contemporaneous <- getmatrix(soc_model_winner, "omega_zeta_within")
+#social_between         <- getmatrix(soc_model_winner, "omega_zeta_between")
 
-alphas  <- 0.01
-adjusts <- "none"
+#social_covariances <- list(temp = social_temporal, contemp = social_contemporaneous, between = social_between)
 
-soc_model <- panelgvar(
-  data = Social_Data, # data
-  vars = design_matS, # The design matrix, with a row indicating a variable and a column a wave of measurements. Note that NA indicates missing variables
-  estimator = 'ULS',
-  storedata = T
-  )
+social_covariances <- readRDS('data/social_covariances.RData')
 
-social_model_sat <- soc_model %>% runmodel()
-social_model_spa <- social_model_sat %>% prune(alpha = alphas)
-
-compare(
-  saturate = social_model_sat,
-  sparse   = social_model_spa
-)
-
-soc_model_winner <- social_model_sat
-soc_model_winner %>% fit
-soc_model_winner %>% parameters
-soc_model_winner@parameters <- soc_model_winner@parameters %>%
-  mutate(est = ifelse(matrix == 'omega_zeta_within' & p < 0.05, est, 0),
-         est = ifelse(matrix == 'omega_zeta_between' & p < 0.05, est, 0))
-
-# Extract networks:
-social_temporal        <- getmatrix(soc_model_winner, "beta")
-social_contemporaneous <- getmatrix(soc_model_winner, "omega_zeta_within")
-social_between         <- getmatrix(soc_model_winner, "omega_zeta_between")
+social_temporal        <- social_covariances[[1]]
+social_contemporaneous <- social_covariances[[2]]
+social_between         <- social_covariances[[3]]
 
 # Labels:
 labelsS <- c("REF","PER", 'NCF', 'QOF', 'TWF', 'SAT')
