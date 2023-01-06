@@ -974,33 +974,41 @@ rownames(S1design_mat) <- substr(S1design_mat[,1],7,nchar(S1design_mat[,1])-2)
 
 # Generate Network ---------------------------------------------------------------
 
-supplementary_dat <- read.csv('Data/SupplementaryAnalysis.csv') %>% dplyr::select(-X)
-
-S1model <- panelgvar(
-  data = supplementary_dat, # data
-  vars = S1design_mat, # The design matrix, with a row indicating a variable and a column a wave of measurements. Note that NA indicates missing variables
-  estimator = 'ULS',
-  storedata = T
-)
-
-#Set model search parms
-alpha  <- 0.01
-adjust <- "none"
-
-#Run models
-S1delus_model_sat    <- S1model %>% runmodel()
-S1winning_delus <- S1delus_model_sat
-
-#Check fit
-S1winning_delus %>% fit
-S1winning_delus@parameters %>% filter(matrix == 'beta', p < 0.05)
-S1winning_delus@parameters %>% filter(matrix == 'omega_zeta_within', p < 0.05)
-S1winning_delus@parameters %>% filter(matrix == 'omega_zeta_between', p < 0.05)
+#supplementary_dat <- read.csv('Data/SupplementaryAnalysis.csv') %>% dplyr::select(-X)
+#
+#S1model <- panelgvar(
+#  data = supplementary_dat, # data
+#  vars = S1design_mat, # The design matrix, with a row indicating a variable and a column a wave of measurements. Note that NA indicates missing variables
+#  estimator = 'ULS',
+#  storedata = T
+#)
+#
+##Set model search parms
+#alpha  <- 0.01
+#adjust <- "none"
+#
+##Run models
+#S1delus_model_sat    <- S1model %>% runmodel()
+#S1winning_delus <- S1delus_model_sat
+#
+##Check fit
+#S1winning_delus %>% fit
+#S1winning_delus@parameters %>% filter(matrix == 'beta', p < 0.05)
+#S1winning_delus@parameters %>% filter(matrix == 'omega_zeta_within', p < 0.05)
+#S1winning_delus@parameters %>% filter(matrix == 'omega_zeta_between', p < 0.05)
 
 # Extract networks:
-S1delus_temporal        <- getmatrix(S1winning_delus, "beta")
-S1delus_contemporaneous <- getmatrix(S1winning_delus, "omega_zeta_within")
-S1delus_between         <- getmatrix(S1winning_delus, "omega_zeta_between")
+#S1delus_temporal        <- getmatrix(S1winning_delus, "beta")
+#S1delus_contemporaneous <- getmatrix(S1winning_delus, "omega_zeta_within")
+#S1delus_between         <- getmatrix(S1winning_delus, "omega_zeta_between")
+
+#supp_covariances <- list(temp = S1delus_temporal, contempo = S1delus_contemporaneous, between = S1delus_between)
+
+supp_covariances <- readRDS('data/supp_covariances.RData')
+
+S1delus_temporal        <- supp_covariances[[1]]
+S1delus_contemporaneous <- supp_covariances[[2]]
+S1delus_between         <- supp_covariances[[3]]
 
 S1labels     <- rownames(S1design_mat)
 
